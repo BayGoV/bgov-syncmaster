@@ -16,9 +16,7 @@ export class AppController {
 
   @Post('preferences')
   preferenceEvent(@Req() req: Request): string {
-    const jsonMessage = Buffer.from(req.body.message.data, 'base64').toString();
-    const preference = JSON.parse(jsonMessage);
-    this.preferenceService.pipeline.next(preference);
+    this.preferenceService.process(req.body.message.data);
     return '';
   }
 
