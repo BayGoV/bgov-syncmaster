@@ -19,6 +19,7 @@ export class MeetupsService {
   pipeline: Subject<Preference>;
   topicName = 'BgovBackendMeetup';
   bucketName = 'bgov-web-meetups';
+  suffix = '.meetup';
 
   constructor() {
     const storage = new Storage();
@@ -60,9 +61,11 @@ export class MeetupsService {
   }
 
   async archive(preference) {
-    const gcFile = this.bucket.file(preference.id + '.pref');
+    const gcFile = this.bucket.file(preference.id + this.suffix);
     try {
-      await gcFile.copy(preference.id + '.pref.v' + (preference.v - 1));
+      await gcFile.copy(
+        preference.id + this.suffix + '.v' + (preference.v - 1),
+      );
     } catch (e) {
       if (e.code === 404) {
         return preference;
@@ -88,7 +91,7 @@ export class MeetupsService {
 
   async compareVersions(preference) {
     let oldPref;
-    const gcFile = this.bucket.file(preference.id + '.pref');
+    const gcFile = this.bucket.file(preference.id + this.suffix);
     try {
       const file = await gcFile.download();
       oldPref = JSON.parse(file.toString());
@@ -104,7 +107,7 @@ export class MeetupsService {
   }
 
   save(preference) {
-    const gcFile = this.bucket.file(preference.id + '.pref');
+    const gcFile = this.bucket.file(preference.id + this.suffix);
     const data = JSON.stringify(preference);
     return new Promise((resolve, reject) => {
       const stream = new Duplex();
